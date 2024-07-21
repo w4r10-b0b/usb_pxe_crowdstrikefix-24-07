@@ -196,7 +196,7 @@ function Invoke-DirectoryFunction {
             $isBitLockerActive = Test-BitLockerStatus
             Write-Host "Is BitLocker active: $isBitLockerActive"
             if ($isBitLockerActive) {
-                $bitLockerKey = Get-BitLockerRecoveryKey-AAD -ComputerName $ComputerName
+                $bitLockerKey = Get-BitLockerRecoveryKey-AD -ComputerName $ComputerName
                 if ($bitLockerKey) {
                     Unlock-BitLockerDrive -BitLockerKey $bitLockerKey.BitLockerKeys
                     Delete-File -filePathToDelete $filePathToDelete
@@ -212,7 +212,7 @@ function Invoke-DirectoryFunction {
             $isBitLockerActive = Test-BitLockerStatus
             Write-Host "Is BitLocker active: $isBitLockerActive"
             if ($isBitLockerActive) {
-                $bitLockerKey = Get-BitLockerRecoveryKey-AD -ComputerName $ComputerName
+                $bitLockerKey = Read-Host -Prompt "Enter bitlocker recovery key"
                 if ($bitLockerKey) {
                     Unlock-BitLockerDrive -BitLockerKey $bitLockerKey.BitLockerKeys -filePathToDelete $filePathToDelete
                 }
