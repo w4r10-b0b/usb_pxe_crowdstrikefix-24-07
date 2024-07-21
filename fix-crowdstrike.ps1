@@ -2,6 +2,44 @@
 # Update as required for below
 $filePathToDelete = "C:\Windows\System32\drivers\CrowdStrike\C-00000291*.sys"
 
+function Unlock-BitLockerWithKeyFile {
+    param (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$folderPath
+    )
+
+    # Get all txt files in the folder
+    $keyFiles = Get-ChildItem -Path $folderPath -Filter *.txt
+
+    # Check each file for a BitLocker recovery key and attempt to unlock
+    foreach ($keyFile in $keyFiles) {
+        # Read the content of the file
+        $fileContent = Get-Content -Path $keyFile.FullName
+
+        # Extract the recovery key using regex, stripping the 'Recovery Key:' label
+        $recoveryKey = $fileContent -match 'Recovery Key:\s*\r?\n\s*(\d{6}-\d{6}-\d{6}-\d{6}-\d{6}-\d{6}-\d{6}-\d{6})' | Out-Null
+        $recoveryKey = $matches[1]
+
+        # Remove any non-numeric characters from the recovery key
+        $recoveryKey = $recoveryKey -replace '[^\d-]', ''
+
+        # Check if a recovery key was found
+        if ($recoveryKey) {
+            # Attempt to unlock the drive with the recovery key
+            try {
+                Unlock-BitLocker -MountPoint "C:" -RecoveryPassword $recoveryKey
+                Write-Output "Drive unlocked using key from file: $($keyFile.Name)"
+            }
+            catch {
+                Write-Error "Failed to unlock drive with key from file: $($keyFile.Name). Error: $_"
+            }
+        } else {
+            Write-Error "No valid recovery key found in file: $($keyFile.Name)"
+        }
+    }
+}
+
 function Delete-File {
     param (
         [Parameter(Mandatory=$true)]
@@ -173,6 +211,12 @@ Function Reboot-System {
 }
 
 function Invoke-DirectoryFunction {
+$bitLockerFolderPath = "X:\BitLocker"
+    if (Test-Path -Path $bitLockerFolderPath) {
+        Unlock-BitLockerWithKeyFile -folderPath $bitLockerFolderPath
+        Delete-File -filePathToDelete $filePathToDelete
+        Reboot-System
+    }
     $choice = Read-Host "Please choose:
     [A]ctive Directory
     [E]ntra/Azure AD
@@ -230,3 +274,4 @@ function Invoke-DirectoryFunction {
         }
     }
 }
+Invoke-DirectoryFunction
