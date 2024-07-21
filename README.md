@@ -1,6 +1,6 @@
 # Mass deployment Network/USB bootable repair for Crowdstrike SYS file issue
 
-This script was generated as a method to mass deploy a fix of the recommended approach to delete the faulty sys file from Crowdstrike causing the issue. This is based around the WinPE and WinRE approach approach to deploy images back in my old days of imaging and packaging (2009). It uses PowerShell and trys to get AD to get Bitlocker (which should be enabled) and LAPS (Passwords for Local admin stored in AD). It can work on Active Directory or Entera (Active Directory). The PowerShell script can be modified as necessary. It by default asks if you have AD, AAD(Entra) or local. You can change it from a Light Touch to Zero Touch approach with modifications.
+This script was generated as a method to mass deploy a fix of the recommended approach to delete the faulty sys file from Crowdstrike causing the issue. This is based around the WinPE and WinRE approach approach to deploy images back in my old days of imaging and packaging (2009). It uses PowerShell and trys to get AD to get Bitlocker (which should be enabled) and LAPS (Passwords for Local admin stored in AD). It can work on Active Directory or Entera (Active Directory). The PowerShell script can be modified as necessary. It by default asks if you have AD, AAD(Entra) or local. You can change it from a Light Touch to Zero Touch approach with modifications. A directory can be specified with keys to test. This can be added later in the USB as well.
 
 Creating a Windows Recovery Environment (WinRE) bootable ISO that can run a PowerShell script involves several steps. Here's a concise guide to help you through the process that was written by several copilot queries and applied to this particular instance. Change and update as required. Test before deploying out:
 
@@ -10,6 +10,7 @@ Creating a Windows Recovery Environment (WinRE) bootable ISO that can run a Powe
    - Make the mount directory in the root of C drive
    - Create a working copy of the Windows PE files using the `copype amd64 C:\Mount\WinRE` command.
    - Alternately mount the WinPE image using the `powershell Mount-WindowsImage -ImagePath "C:\Path\To\winre.wim" -Index 1 -Path "C:\Mount\WinRE"` command.
+   - If you have several bitlocker keys and want to try to unlock by the script trying one by one create a directory called bitlocker and add the keys there.
 
 2. **Add PowerShell support to WinPE:**
    - Add networking and PowerShell support using the following:
